@@ -5,99 +5,97 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AgentResource;
 use App\Models\Agent;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class AgentController extends Controller
 {
-    /**
-     * Affiche une liste de ressources.
-     */
     public function index()
     {
-        // Récupère tous les agents
-        $agents = Agent::all();
-
-        // Retourne une collection de ressources Agent
-        return AgentResource::collection($agents);
+        $agents = Agent::with('user', 'role')->get();
+        return response()->json(AgentResource::collection($agents));
     }
 
-
-    /**
-     * Stocke une nouvelle ressource dans le stockage.
-     */
     public function store(Request $request)
     {
-        // Validation des données de la requête
         $data = $request->validate([
             'role_id' => 'required|exists:roles,id',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'phone_number' => 'required|string|min:9|max:15',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'active' => 'boolean',
-            // Ajoutez d'autres règles de validation au besoin pour d'autres champs.
+            'email' => 'required|email|unique:users',
+            'password' => ['required', 'confirmed', 'min:8'],
+            'phone_number' => 'required|string',
+            'image' => 'nullable|string',
+            'active' => 'required|boolean',
         ]);
 
-        // Création de l'agent avec les données validées
-        $agent = Agent::create($data);
+        // Create an agent
+        $agent = Agent::create([
+            'role_id' => $data['role_id'],
+        ]);
 
-        // Retourne la ressource de l'agent nouvellement créé
-        return new AgentResource($agent);
+        // Create a user associated with the agent
+        $user = User::create([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'phone_number' => $data['phone_number'],
+            'image' => $data['image'],
+            'active' => $data['active'],
+            'userable_id' => $agent->id,
+            'userable_type' => 'Agent', // Set the class name of the related model
+        ]);
+
+        // Update the agent with the user_id
+        $agent->update([
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json(new AgentResource($agent));
     }
 
-    /**
-     * Affiche la ressource spécifiée.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        // Recherche de l'agent par ID
-        $agent = Agent::findOrFail($id);
-
-        // Retourne la ressource de l'agent
-        return new AgentResource($agent);
+        $agent = Agent::with('user', 'role')->findOrFail($id);
+        return response()->json(new AgentResource($agent));
     }
 
-    /**
-     * Met à jour la ressource spécifiée dans le stockage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        // Validation des données de la requête
         $data = $request->validate([
-            'role_id' => 'required|roles,id',
+            'role_id' => 'required|exists:roles,id',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone_number' => 'required|string|min:9|max:15',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'active' => 'boolean',
-            // Ajoutez d'autres règles de validation au besoin pour d'autres champs.
+            'phone_number' => 'required|string',
+            'image' => 'nullable|string',
+            'active' => 'required|boolean',
         ]);
 
-        // Recherche de l'agent par ID
         $agent = Agent::findOrFail($id);
 
-        // Mise à jour de l'agent avec les données validées
-        $agent->update($data);
+        $user = $agent->user;
+        $user->update([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'phone_number' => $data['phone_number'],
+            'image' => $data['image'],
+            'active' => $data['active'],
+        ]);
 
-        // Retourne la ressource de l'agent mis à jour
-        return new AgentResource($agent);
+        $agent->update([
+            'role_id' => $data['role_id'],
+        ]);
+
+        return response()->json(new AgentResource($agent));
     }
 
-    /**
-     * Supprime la ressource spécifiée du stockage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        // Recherche de l'agent par ID
         $agent = Agent::findOrFail($id);
-
-        // Suppression de l'agent
         $agent->delete();
 
-        // Retourne une réponse JSON
         return response()->json([
             'message' => 'Agent supprimé avec succès',
         ]);

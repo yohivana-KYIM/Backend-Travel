@@ -11,19 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('chauffeurs', function (Blueprint $table) {
             $table->id();
-            $table->string('matricule')->unique(); // Ajout de la contrainte d'unicité
+            $table->string('nom');
+            $table->string('prenom');
+            $table->string('numero_permis');
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('chauffeurs');
     }
 };

@@ -1,0 +1,32 @@
+Voici les étapes pour pousser votre branche ivana sur le dépôt distant et fusionner sur la branche main :
+
+1. Clonez le projet sur votre machine
+
+2. Basculez sur la branche ivana
+
+git checkout ivana
+
+3. Faites vos modifications et confirmez-les
+
+git add .
+git commit -m "Vos modifications"
+
+4. Poussez vos modifications sur le dépôt distant
+
+git push origin ivana
+
+5. Basculez sur la branche main
+
+git checkout main
+
+6. Fusionnez la branche ivana dans la branche main
+
+git merge ivana
+
+7. Confirmez la fusion
+
+git commit -m "Fusion de la branche ivana"
+
+8. Poussez les modifications sur le dépôt distant
+
+git push origin main

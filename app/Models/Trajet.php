@@ -15,6 +15,7 @@ class Trajet extends Model
         'lieuxdepart',
         'lieuxArrivee',
         'tarification',
+        'dateheureDepart',
         'dateheureArrivee',
     ];
 

@@ -28,7 +28,7 @@ class RoleController extends Controller
     {
         // Valide les données du formulaire
         $data = $request->validate([
-            'name' => 'required|unique:roles,name',
+            'name' => 'required',
             // Ajoutez d'autres règles de validation au besoin pour d'autres champs.
         ]);
 
@@ -58,7 +58,7 @@ class RoleController extends Controller
     {
         // Valide les données du formulaire
         $data = $request->validate([
-            'name' => 'required|unique:roles,name,' . $id,
+            'name' => 'required',
             // Ajoutez d'autres règles de validation au besoin pour d'autres champs.
         ]);
 
@@ -71,6 +71,7 @@ class RoleController extends Controller
         // Retourne une ressource de rôle mise à jour
         return new RoleResource($role);
     }
+
 
     /**
      * Supprime la ressource spécifiée du stockage.

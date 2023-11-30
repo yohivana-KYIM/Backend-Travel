@@ -11,19 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->string('matricule')->unique(); // Ajout de la contrainte d'unicité
-            $table->timestamps();
+        Schema::table('buses', function (Blueprint $table) {
+            if (!Schema::hasColumn('buses', 'deleted_at')) {
+                $table->softDeletes();
+            }
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('students');
+        Schema::table('buses', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
     }
 };
