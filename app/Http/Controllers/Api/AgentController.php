@@ -42,10 +42,10 @@ class AgentController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
             'phone_number' => $data['phone_number'],
-            'image' => $data['image'],
+            // 'image' => $data['image'],
             'active' => $data['active'],
             'userable_id' => $agent->id,
-            'userable_type' => 'Agent', // Set the class name of the related model
+            'userable_type' => 'App\Models\Agent', // Set the class name of the related model
         ]);
 
         // Update the agent with the user_id

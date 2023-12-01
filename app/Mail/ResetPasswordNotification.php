@@ -1,19 +1,28 @@
 <?php
-// app/Mail/ResetPasswordNotification.php
 
-namespace App\Mail;
+namespace App\Notifications;
 
-use Illuminate\Mail\Mailable;
+use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 
-class ResetPasswordNotification extends Mailable
+class ResetPasswordNotification extends Notification
 {
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
-    public function build()
+    public $token;
+
+    public function __construct($token)
     {
-        return $this->view('emails.reset_password'); // Assurez-vous d'avoir une vue correspondante
+        $this->token = $token;
+    }
+
+    public function via($notifiable)
+    {
+        return ['mail'];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Réinitialisation de mot de passe')
+            ->markdown('emails.reset_password', ['resetLink' => url(config('app.url').route('password.reset', $this->token, false))]);
     }
 }

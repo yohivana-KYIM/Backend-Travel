@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 30, 2023 at 11:25 AM
+-- Generation Time: Dec 01, 2023 at 02:33 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -39,7 +39,8 @@ CREATE TABLE `agents` (
 --
 
 INSERT INTO `agents` (`id`, `role_id`, `created_at`, `updated_at`) VALUES
-(1, 1, '2023-11-30 09:21:36', '2023-11-30 09:21:36');
+(1, 1, '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(2, 1, '2023-11-30 22:51:25', '2023-11-30 22:51:25');
 
 -- --------------------------------------------------------
 
@@ -72,8 +73,7 @@ CREATE TABLE `chauffeurs` (
   `prenom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `numero_permis` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -124,9 +124,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (13, '2023_11_27_134938_create_chauffeurs_table', 1),
 (14, '2023_11_27_142346_add_chauffeur_id_to_buses_table', 1),
 (15, '2023_11_27_150147_add_unique_to_numero_permis_in_chauffeurs_table', 1),
-(16, '2023_11_28_094914_add_deleted_at_to_buses_table', 1),
-(17, '2023_11_29_102057_add_deleted_at_to_chauffeurs_table', 1),
-(18, '2023_11_29_102331_add_deleted_at_to_trajets_table', 1);
+(16, '2023_11_28_094914_add_deleted_at_to_buses_table', 1);
 
 -- --------------------------------------------------------
 
@@ -139,6 +137,13 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`email`, `token`, `created_at`) VALUES
+('yohivana794@gmail.com', '$2y$12$Cy44rMdVMt/r0y6qXtb1lOZg8RBCgXfXI6pI65wTkXggwePmmPScS', '2023-12-01 01:30:01');
 
 -- --------------------------------------------------------
 
@@ -181,8 +186,9 @@ CREATE TABLE `personal_access_tokens` (
 --
 
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
-(1, 'App\\Models\\User', 5, 'auth_token', 'ddf295ef22b3222fcc0f6a65faefc88b28e01a829ed45185882c64961e9eab08', '[\"*\"]', NULL, NULL, '2023-11-30 09:34:27', '2023-11-30 09:34:27'),
-(2, 'App\\Models\\User', 1, 'auth_token', '3a5b60d3987f41cedeb8d33b4c4020e3f51939a337ef76ac8a85f307751de3ea', '[\"*\"]', NULL, NULL, '2023-11-30 09:35:07', '2023-11-30 09:35:07');
+(1, 'App\\Models\\User', 7, 'auth_token', 'ef7945d6a4db4effd8ebe4ff7e54f7b69a76b33e6a3132bd10153eb681038180', '[\"*\"]', NULL, NULL, '2023-11-30 22:53:11', '2023-11-30 22:53:11'),
+(2, 'App\\Models\\User', 2, 'auth_token', '6dce1391409a56384894e1a6eef6b6b5750c84fc9c67309fd8714d171ea2a29d', '[\"*\"]', NULL, NULL, '2023-11-30 22:55:03', '2023-11-30 22:55:03'),
+(3, 'App\\Models\\User', 8, 'auth_token', 'f2070674dd3e7ba929a97a08a5d914db22b5d28bfbb69cc4562d59c734279988', '[\"*\"]', NULL, NULL, '2023-12-01 01:28:48', '2023-12-01 01:28:48');
 
 -- --------------------------------------------------------
 
@@ -202,7 +208,7 @@ CREATE TABLE `roles` (
 --
 
 INSERT INTO `roles` (`id`, `name`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', '2023-11-30 09:21:36', '2023-11-30 09:21:36');
+(1, 'Admin', '2023-11-30 22:50:49', '2023-11-30 22:50:49');
 
 -- --------------------------------------------------------
 
@@ -238,17 +244,12 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`id`, `matricule`, `created_at`, `updated_at`) VALUES
-(1, '5598481879796', '2023-11-30 09:21:36', '2023-11-30 09:21:36'),
-(2, '5595743193393', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(3, '4216347586107', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(4, '1609657736547', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(5, '0452191663937', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(6, '123456788', '2023-11-30 09:22:04', '2023-11-30 09:22:04'),
-(8, '12345678', '2023-11-30 09:26:40', '2023-11-30 09:26:40'),
-(10, '12345679', '2023-11-30 09:27:21', '2023-11-30 09:27:21'),
-(11, '123456796666', '2023-11-30 09:49:45', '2023-11-30 09:49:45'),
-(13, '1234567880', '2023-11-30 09:58:15', '2023-11-30 09:58:15'),
-(14, '123456899', '2023-11-30 10:00:14', '2023-11-30 10:00:14');
+(1, '0809574810219', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(2, '4347222527219', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(3, '2223875129005', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(4, '2324462732759', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(5, '5979528555468', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(6, '123456788', '2023-11-30 23:16:01', '2023-11-30 23:16:01');
 
 -- --------------------------------------------------------
 
@@ -281,8 +282,7 @@ CREATE TABLE `trajets` (
   `dateheureDepart` datetime NOT NULL,
   `dateheureArrivee` datetime NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -313,13 +313,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `email_verified_at`, `password`, `phone_number`, `image`, `active`, `userable_id`, `userable_type`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Brandy', 'Denesik', 'gay.kiehn@example.net', '2023-11-30 09:21:36', '$2y$12$DdDcWInTfsUumGrLg0Lqpepe7WneM7S0P/rRxgh9uyWi95n2Sxd0O', '1-432-960-9699', NULL, 1, 1, 'App\\Models\\Agent', 'JtS22HNlV3', '2023-11-30 09:21:36', '2023-11-30 09:21:36'),
-(2, 'Joanny', 'Parisian', 'pamela.bauch@example.com', '2023-11-30 09:21:37', '$2y$12$DdDcWInTfsUumGrLg0Lqpepe7WneM7S0P/rRxgh9uyWi95n2Sxd0O', '(765) 328-8455', NULL, 1, 1, 'App\\Models\\Student', 'ro47TrQYu9', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(3, 'Colton', 'Nicolas', 'okuneva.ronaldo@example.net', '2023-11-30 09:21:37', '$2y$12$DdDcWInTfsUumGrLg0Lqpepe7WneM7S0P/rRxgh9uyWi95n2Sxd0O', '+1-641-453-4384', NULL, 1, 2, 'App\\Models\\Student', '0vg9PqHUzD', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(4, 'Jules', 'Schimmel', 'jarrell28@example.com', '2023-11-30 09:21:37', '$2y$12$DdDcWInTfsUumGrLg0Lqpepe7WneM7S0P/rRxgh9uyWi95n2Sxd0O', '(870) 304-2462', NULL, 1, 3, 'App\\Models\\Student', 'VZdkTYlhsB', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(5, 'Adell', 'Kuhn', 'lulu38@example.com', '2023-11-30 09:21:37', '$2y$12$DdDcWInTfsUumGrLg0Lqpepe7WneM7S0P/rRxgh9uyWi95n2Sxd0O', '520-764-7146', NULL, 1, 4, 'App\\Models\\Student', 'QdGJqUr1TI', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(6, 'Dayna', 'Cole', 'bsimonis@example.com', '2023-11-30 09:21:37', '$2y$12$DdDcWInTfsUumGrLg0Lqpepe7WneM7S0P/rRxgh9uyWi95n2Sxd0O', '458.918.3520', NULL, 1, 5, 'App\\Models\\Student', 'Mlh1qmfH15', '2023-11-30 09:21:37', '2023-11-30 09:21:37'),
-(9, 'abdou', 'rerer', 'yohivana794@gmail.com', NULL, '$2y$12$mp6QaI4LKz9a7TR9XNqwpeYwAQHDfeNUyy2YXq0FsH/Wqa62629G2', '675411455', NULL, 1, 14, 'App\\Models\\Student', NULL, '2023-11-30 10:00:15', '2023-11-30 10:00:15');
+(1, 'Ivy', 'Lang', 'schulist.herminio@example.org', '2023-11-30 22:50:49', '$2y$12$rdNN03UC9iCdk/7o0200kOM.qttUBFRLgVj2w1Te6T92DAPF0RHre', '1-463-933-2964', NULL, 1, 1, 'App\\Models\\Agent', 'bmhn2DpIcc', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(2, 'Jennifer', 'Moen', 'tschulist@example.com', '2023-11-30 22:50:49', '$2y$12$rdNN03UC9iCdk/7o0200kOM.qttUBFRLgVj2w1Te6T92DAPF0RHre', '+1.760.551.9814', NULL, 1, 1, 'App\\Models\\Student', 'MABxhD50DB', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(3, 'Rodrigo', 'Rolfson', 'irma35@example.org', '2023-11-30 22:50:49', '$2y$12$rdNN03UC9iCdk/7o0200kOM.qttUBFRLgVj2w1Te6T92DAPF0RHre', '1-475-672-9747', NULL, 1, 2, 'App\\Models\\Student', 'kuqIvv8HS8', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(4, 'Nettie', 'Mohr', 'harvey.lavina@example.com', '2023-11-30 22:50:49', '$2y$12$rdNN03UC9iCdk/7o0200kOM.qttUBFRLgVj2w1Te6T92DAPF0RHre', '1-283-634-9587', NULL, 1, 3, 'App\\Models\\Student', 'QfwiYI1ps0', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(5, 'Zoey', 'O\'Keefe', 'steuber.collin@example.net', '2023-11-30 22:50:49', '$2y$12$rdNN03UC9iCdk/7o0200kOM.qttUBFRLgVj2w1Te6T92DAPF0RHre', '313-982-9244', NULL, 1, 4, 'App\\Models\\Student', 'dc4D0s1rki', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(6, 'Ron', 'Jast', 'ivah58@example.org', '2023-11-30 22:50:49', '$2y$12$rdNN03UC9iCdk/7o0200kOM.qttUBFRLgVj2w1Te6T92DAPF0RHre', '(216) 578-1874', NULL, 1, 5, 'App\\Models\\Student', 'FW0GzF8EG7', '2023-11-30 22:50:49', '2023-11-30 22:50:49'),
+(7, 'abdou', 'rerer', 'yohivana794@gmail.com', NULL, '$2y$12$6ZGV9ha3cYDkqN8INbKtdu/hSGWgQSmCfS187Az.jIgFeUlbDmJoO', '675411455', NULL, 1, 2, 'App\\Models\\Agent', NULL, '2023-11-30 22:51:25', '2023-11-30 22:51:25'),
+(8, 'lore', 'rerer', 'yohivana237@gmail.com', NULL, '$2y$12$XaEfehfV1yiSut0MVhv9T.x4j7xLXJJ1VGIiGF3CHbHU9qOk2x7Ry', '675411455', NULL, 1, 6, 'App\\Models\\Student', NULL, '2023-11-30 23:16:02', '2023-12-01 01:27:21');
 
 --
 -- Indexes for dumped tables
@@ -431,7 +432,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `agents`
 --
 ALTER TABLE `agents`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `buses`
@@ -455,7 +456,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `payements`
@@ -467,7 +468,7 @@ ALTER TABLE `payements`
 -- AUTO_INCREMENT for table `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -485,7 +486,7 @@ ALTER TABLE `sieges`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `tickets`
@@ -503,7 +504,7 @@ ALTER TABLE `trajets`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
