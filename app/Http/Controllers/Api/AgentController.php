@@ -8,7 +8,7 @@ use App\Models\Agent;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\Validator;
 class AgentController extends Controller
 {
     public function index()
@@ -19,16 +19,40 @@ class AgentController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'role_id' => 'required|exists:roles,id',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:users,email',
             'password' => ['required', 'confirmed', 'min:8'],
             'phone_number' => 'required|string',
             'image' => 'nullable|string',
             'active' => 'required|boolean',
+        ], [
+            'role_id.required' => 'Le champ "role_id" est requis.',
+            'role_id.exists' => 'Le rôle spécifié n\'existe pas.',
+            'first_name.required' => 'Le champ "first_name" est requis.',
+            'first_name.string' => 'Le champ "first_name" doit être une chaîne de caractères.',
+            'last_name.required' => 'Le champ "last_name" est requis.',
+            'last_name.string' => 'Le champ "last_name" doit être une chaîne de caractères.',
+            'email.required' => 'Le champ "email" est requis.',
+            'email.email' => 'Le champ "email" doit être une adresse e-mail valide.',
+            'email.unique' => 'Cette adresse e-mail est déjà utilisée.',
+            'password.required' => 'Le champ "password" est requis.',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+            'password.min' => 'Le mot de passe doit contenir au moins :min caractères.',
+            'phone_number.required' => 'Le champ "phone_number" est requis.',
+            'phone_number.string' => 'Le champ "phone_number" doit être une chaîne de caractères.',
+            'image.nullable' => 'Le champ "image" doit être une chaîne de caractères.',
+            'active.required' => 'Le champ "active" est requis.',
+            'active.boolean' => 'Le champ "active" doit être un booléen.',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validated();
 
         // Create an agent
         $agent = Agent::create([
@@ -42,7 +66,7 @@ class AgentController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
             'phone_number' => $data['phone_number'],
-            // 'image' => $data['image'],
+            'image' => $data['image'],
             'active' => $data['active'],
             'userable_id' => $agent->id,
             'userable_type' => 'App\Models\Agent', // Set the class name of the related model
@@ -56,22 +80,42 @@ class AgentController extends Controller
         return response()->json(new AgentResource($agent));
     }
 
+
     public function show($id)
     {
         $agent = Agent::with('user', 'role')->findOrFail($id);
         return response()->json(new AgentResource($agent));
     }
 
+    
     public function update(Request $request, $id)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'role_id' => 'required|exists:roles,id',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'phone_number' => 'required|string',
             'image' => 'nullable|string',
             'active' => 'required|boolean',
+        ], [
+            'role_id.required' => 'Le champ "role_id" est requis.',
+            'role_id.exists' => 'Le rôle spécifié n\'existe pas.',
+            'first_name.required' => 'Le champ "first_name" est requis.',
+            'first_name.string' => 'Le champ "first_name" doit être une chaîne de caractères.',
+            'last_name.required' => 'Le champ "last_name" est requis.',
+            'last_name.string' => 'Le champ "last_name" doit être une chaîne de caractères.',
+            'phone_number.required' => 'Le champ "phone_number" est requis.',
+            'phone_number.string' => 'Le champ "phone_number" doit être une chaîne de caractères.',
+            'image.nullable' => 'Le champ "image" doit être une chaîne de caractères.',
+            'active.required' => 'Le champ "active" est requis.',
+            'active.boolean' => 'Le champ "active" doit être un booléen.',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validated();
 
         $agent = Agent::findOrFail($id);
 

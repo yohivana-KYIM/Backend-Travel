@@ -88,4 +88,8 @@ class StudentController extends Controller
             'message' => 'Étudiant supprimé avec succès',
         ]);
     }
+    
+    //delete compte
+  
+
 }

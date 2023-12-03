@@ -5,112 +5,104 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Models\User;
 use App\Models\Student;
 use App\Mail\WelcomeEmail;
+use App\Mail\ResetPasswordNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
-
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
-use App\Notifications\ResetPasswordNotification;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
-    // Les tableaux des providers autorisés
     protected $providers = ["google", "facebook"];
+
+    public function index(Request $request)
+    {
+        $search = $request->get('search');
+        $users = User::query();
+
+        if ($search) {
+            $users->where('first_name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%');
+        }
+
+        $users = $users->orderBy('first_name', 'asc')->paginate(10);
+
+        return response()->json(['message' => 'Récupération des utilisateurs réussie', 'users' => $users]);
+    }
+
     public function login(Request $request)
     {
         $validatedData = $request->validate([
             'email' => 'required|string|email|max:255',
             'password' => 'required|string',
+        ], [
+            'email.required' => 'L\'adresse e-mail est requise.',
+            'email.email' => 'L\'adresse e-mail doit être une adresse e-mail valide.',
+            'password.required' => 'Le mot de passe est requis.',
         ]);
 
         if (!Auth::attempt($validatedData)) {
-            return response()->json([
-                'message' => 'Les informations de connexion sont invalides.'
-            ], 401);
+            return response()->json(['message' => 'Les informations de connexion sont invalides.'], 401);
         }
 
         $user = User::where('email', $validatedData['email'])->firstOrFail();
 
         if (!$user->active) {
-            return response()->json([
-                'message' => "Votre compte est désactivé pour le moment. Veuillez contacter l'administrateur pour plus d'informations."
-            ], 401);
+            return response()->json(['message' => "Votre compte est désactivé pour le moment. Veuillez contacter l'administrateur pour plus d'informations."], 401);
         }
 
         return response()->json([
-            'type' => $user->userable->role ? $user->userable->role->name : 'Student',
+            'type' => optional($user->userable->role)->name ?? 'Student',
             'access_token' => $user->createToken('auth_token')->plainTextToken,
             'token_type' => 'Bearer',
+            'data' => $user,
         ]);
     }
 
 
+ 
 
-
-    public function redirectToGoogle()
+    public function redirectToProvider($provider)
     {
-        return Socialite::driver('google')->redirect();
+        if (!in_array($provider, $this->providers)) {
+            return response()->json(['message' => 'Provider not supported'], 422);
+        }
+
+        return Socialite::driver($provider)->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function handleProviderCallback($provider)
     {
-        $socialiteUser = Socialite::driver('google')->user();
+        if (!in_array($provider, $this->providers)) {
+            return response()->json(['message' => 'Provider not supported'], 422);
+        }
 
-        // Vérifiez si l'utilisateur existe déjà dans la base de données
+        $socialiteUser = Socialite::driver($provider)->user();
+
         $user = User::where('email', $socialiteUser->getEmail())->first();
 
         if (!$user) {
-            // L'utilisateur n'existe pas, enregistrez-le
             $user = User::create([
                 'email' => $socialiteUser->getEmail(),
-                'name' => $socialiteUser->getName(),
-
-                'password' => Hash::make(Str::random(8)),// Générez un mot de passe aléatoire
+                // 'name' => $socialiteUser->getName(),
+                'password' => Hash::make(Str::random(8)),
             ]);
-
-            // Ajoutez le rôle et autres détails si nécessaire
         }
 
         Auth::login($user);
 
-        return response()->json(['message' => 'Authentification Google réussie']);
-    }
-
-    public function redirectToFacebook()
-    {
-        return Socialite::driver('facebook')->redirect();
-    }
-
-    public function handleFacebookCallback()
-    {
-        $socialiteUser = Socialite::driver('facebook')->user();
-
-        // Vérifiez si l'utilisateur existe déjà dans la base de données
-        $user = User::where('email', $socialiteUser->getEmail())->first();
-
-        if (!$user) {
-            // L'utilisateur n'existe pas, enregistrez-le
-            $user = User::create([
-                'email' => $socialiteUser->getEmail(),
-                'name' => $socialiteUser->getName(),
-                'password' => Hash::make(Str::random(8)), // Générez un mot de passe aléatoire
-            ]);
-
-        }
-
-        Auth::login($user);
-
-        return response()->json(['message' => 'Authentification Facebook réussie']);
+        return response()->json(['message' => "Authentification $provider réussie"]);
     }
 
     public function register(Request $request)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'matricule' => ['required', 'string'],
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],
@@ -119,70 +111,63 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
+        $data = $validator->validated();
+
+        if ($request->password !== $request->password_confirmation) {
+            return response()->json(['errors' => ['password' => ['Le mot de passe et la confirmation ne correspondent pas.']]], 422);
+        }
 
         $student = Student::create($data);
-
-        // Créez d'abord l'utilisateur avant d'envoyer l'e-mail
         $user = $student->user()->create($data);
 
-        // Envoyez l'e-mail de bienvenue à l'utilisateur avec le mot de passe non chiffré
         Mail::to($user->email)->send(new WelcomeEmail($student));
 
         return response()->json($student);
     }
 
-
- 
-    public function forgotPassword()
+    public function forgotPassword(Request $request)
     {
-        // Validation des données d'entrée
-        $credentials = request()->validate([
+        $credentials = $request->validate([
             'email' => 'required|email|exists:users,email',
         ]);
 
-        // Récupération de l'utilisateur associé à l'e-mail
         $user = User::where('email', $credentials['email'])->first();
 
-        // Vérification de l'existence de l'utilisateur
         if (!$user) {
             return response()->json(["msg" => 'Utilisateur non trouvé'], 404);
         }
 
-        // Création du jeton de réinitialisation de mot de passe
         $token = Password::createToken($user);
 
-        // Notification de réinitialisation de mot de passe
         $user->notify(new ResetPasswordNotification($token));
 
-        // Réponse indiquant l'envoi du lien de réinitialisation
-        return response()->json(["msg" => 'Lien de réinitialisation du mot de passe envoyé à votre adresse e-mail.']);
+        return response()->json([
+            "msg" => 'Lien de réinitialisation du mot de passe envoyé à votre adresse e-mail.',
+            'token' => $token,
+        ]);
     }
 
-   
-
-    public function reset(Request $request)
+    public function resetPassword(Request $request)
     {
-        // Validation des données d'entrée
         $credentials = $request->validate([
             'email' => 'required|email',
             'token' => 'required|string|size:64',
             'password' => 'required|string|confirmed',
         ]);
 
-        // Tentative de réinitialisation du mot de passe
-        $reset_password_status = Password::reset($credentials, function ($user, $password) {
-            // Modification du mot de passe de l'utilisateur
+        $resetPasswordStatus = Password::reset($credentials, function ($user, $password) {
             $user->password = Hash::make($password);
             $user->save();
         });
 
-        // Gestion des différents cas de retour de la réinitialisation du mot de passe
-        if ($reset_password_status == Password::INVALID_TOKEN) {
+        if ($resetPasswordStatus == Password::INVALID_TOKEN) {
             return response()->json(["msg" => "Jeton non valide fourni"], 400);
         }
 
-        // Réponse indiquant que le mot de passe a été changé avec succès
         return response()->json(["msg" => "Mot de passe changé avec succès"]);
     }
 
@@ -192,24 +177,63 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'User disconnected successully',
+            'message' => 'Déconnexion réussie',
         ]);
     }
+    
+    public function deleteAccount(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!Hash::check($request->input('password'), $user->password)) {
+            return response()->json(['message' => 'Mot de passe de confirmation incorrect'], 401);
+        }
+
+        if (!$user->active) {
+            return response()->json(['message' => 'Le compte est déjà désactivé'], 400);
+        }
+
+        $user->active = false;
+        $user->save();
+
+        return response()->json(['message' => 'Compte désactivé avec succès']);
+    }
+
+       // une nouvelle méthode pour récupérer le profil d'un utilisateur spécifique par son ID :
+        public function getUserProfile($userId)
+        {
+            $user = User::findOrFail($userId);
+    
+            return response()->json(['data' => $user]);
+        }
+    
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'phone_number' => 'required|string',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        $user->update($request->only(['first_name', 'last_name', 'phone_number']));
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . $file->getClientOriginalName();
+            $file->storeAs('public/images', $filename);
+
+            if ($user->image) {
+                Storage::delete('public/' . $user->image);
+            }
+
+            $user->image = 'images/' . $filename;
+            $user->save();
+        }
+
+        return response()->json(['message' => 'Profil mis à jour avec succès']);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,7 @@
 <?php
+// app/Mail/ResetPasswordNotification.php
 
-namespace App\Notifications;
+namespace App\Mail;
 
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -12,11 +13,6 @@ class ResetPasswordNotification extends Notification
     public function __construct($token)
     {
         $this->token = $token;
-    }
-
-    public function via($notifiable)
-    {
-        return ['mail'];
     }
 
     public function toMail($notifiable)
