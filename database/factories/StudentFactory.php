@@ -17,7 +17,7 @@ class StudentFactory extends Factory
     public function definition(): array
     {
         return [
-            'matricule' => fake()->ean13()
+            'matricule' => $this->faker->ean13()
         ];
     }
 }

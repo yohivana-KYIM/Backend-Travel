@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('image')->nullable();
             $table->boolean('active')->default(true);
-            $table->integer('userable_id');
+            $table->unsignedBigInteger('userable_id');
             $table->string('userable_type');
             $table->rememberToken();
             $table->timestamps();

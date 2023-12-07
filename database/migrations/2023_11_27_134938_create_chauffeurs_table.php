@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('chauffeurs', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
-            $table->string('prenom');
+            // $table->string('nom');
+            // $table->string('prenom');
             $table->string('numero_permis');
+            // Ajoutez la colonne pour l'ID de l'agent
+            $table->unsignedBigInteger('agent_id');
+            $table->foreign('agent_id')->references('id')->on('agents')->onDelete('cascade');
             $table->timestamps();
         });
     }

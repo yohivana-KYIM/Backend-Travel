@@ -18,6 +18,7 @@ class Agent extends Model
      */
     protected $fillable = [
         'role_id'
+        
     ];
 
     protected $with = ['user', 'role'];
@@ -36,5 +37,10 @@ class Agent extends Model
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+    // Relation avec Chauffeur (hasOne)
+    public function chauffeur()
+    {
+        return $this->hasOne(Chauffeur::class, 'agent_id');
     }
 }

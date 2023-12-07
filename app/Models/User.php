@@ -30,6 +30,8 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+    // // Dans User.php
+    // protected $with = ['userable'];
 
     /**
      * The attributes that should be hidden for serialization.
