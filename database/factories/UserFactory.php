@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Models\Chauffeur;
 use App\Models\Agent;
 
+
+
 class UserFactory extends Factory
 {
     protected $model = User::class;
@@ -27,12 +29,17 @@ class UserFactory extends Factory
         ];
     }
 
+    private function associateUserable(User $user, $userable): void
+    {
+        $user->userable()->associate($userable);
+        $user->save();
+    }
+
     public function admin(): self
     {
         return $this->afterCreating(function (User $user) {
             $agent = Agent::factory()->create();
-            $user->userable()->associate($agent);
-            $user->save();
+            $this->associateUserable($user, $agent);
         });
     }
 
@@ -40,8 +47,7 @@ class UserFactory extends Factory
     {
         return $this->afterCreating(function (User $user) {
             $chauffeur = Chauffeur::factory()->create();
-            $user->userable()->associate($chauffeur);
-            $user->save();
+            $this->associateUserable($user, $chauffeur);
         });
     }
 
@@ -49,11 +55,10 @@ class UserFactory extends Factory
     {
         return $this->afterCreating(function (User $user) {
             $student = Student::factory()->create();
-            $user->userable()->associate($student);
-            $user->save();
+            $this->associateUserable($user, $student);
         });
     }
-    
+
     public function unverified(): self
     {
         return $this->state(fn (array $attributes) => [
@@ -61,4 +66,3 @@ class UserFactory extends Factory
         ]);
     }
 }
-
