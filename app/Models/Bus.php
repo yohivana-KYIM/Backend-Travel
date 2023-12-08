@@ -13,6 +13,7 @@ class Bus extends Model
     protected $fillable = [
         'matricule',
         'brand',
+        'photo',
         'model',
         'seat',
     ];
