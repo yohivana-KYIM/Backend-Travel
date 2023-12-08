@@ -16,20 +16,17 @@ class AgentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'role_id' => $this->role_id,
-            'user' => $this->whenLoaded('user', function () {
-                return [
-                    'id' => $this->user->id,
-                    'first_name' => $this->user->first_name,
-                    'last_name' => $this->user->last_name,
-                    'email' => $this->user->email,
-                    'phone_number' => $this->user->phone_number,
-                    'image' => $this->user->image,
-                    'active' => $this->user->active,
-                ];
-            }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'type' => $this->type->name,
+            // 'driving_license' => $this->when($this->type->name === "chauffeur", $this->driving_license),
+            'first_name' => $this->user->first_name,
+            'last_name' => $this->user->last_name,
+            'email' => $this->user->email,
+            'phone' => $this->user->phone,
+            'address' => $this->user->address,
+            'image' => $this->user->image,
+            'active' => $this->user->active,
+            'created_at' => $this->created_at->format('Y-m-d h:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d h:i:s'),
         ];
     }
 }

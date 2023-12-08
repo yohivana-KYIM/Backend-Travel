@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('gender');
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('phone_number');
             $table->string('image')->nullable();
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('userable_id');

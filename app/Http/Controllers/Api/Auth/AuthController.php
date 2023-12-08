@@ -21,19 +21,35 @@ class AuthController extends Controller
 {
     protected $providers = ["google", "facebook"];
 
-    public function index(Request $request)
+    public function register(Request $request)
     {
-        $search = $request->get('search');
-        $users = User::query();
+        $validator = Validator::make($request->all(), [
+            'matricule' => ['required', 'string', 'unique:students,matricule,except,id'],
+            'first_name' => ['required', 'string'],
+            'last_name' => ['required', 'string'],
+            'gender' => ['required', 'string'],
+            'phone' => ['required', 'string', 'min:9', 'max:15'],
+            'address' => ['required', 'string'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
 
-        if ($search) {
-            $users->where('first_name', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%');
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $users = $users->orderBy('first_name', 'asc')->paginate(10);
+        if ($request->password !== $request->password_confirmation) {
+            return response()->json(['errors' => ['password' => ['Le mot de passe et la confirmation ne correspondent pas.']]], 422);
+        }
 
-        return response()->json(['message' => 'Récupération des utilisateurs réussie', 'users' => $users]);
+        $data = $validator->validated();
+        $student = Student::create($data);
+        $data['password'] = Hash::make($data['password']);
+        $user = $student->user()->create($data);
+
+        Mail::to($user->email)->send(new WelcomeEmail($student));
+
+        return response()->json($student);
     }
 
     public function login(Request $request)
@@ -58,15 +74,12 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'type' => optional($user->userable->role)->name ?? 'Student',
+            'type' => optional($user->userable->type)->name ?? 'Student',
             'access_token' => $user->createToken('auth_token')->plainTextToken,
             'token_type' => 'Bearer',
             'data' => $user,
         ]);
     }
-
-
- 
 
     public function redirectToProvider($provider)
     {
@@ -98,35 +111,6 @@ class AuthController extends Controller
         Auth::login($user);
 
         return response()->json(['message' => "Authentification $provider réussie"]);
-    }
-
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'matricule' => ['required', 'string'],
-            'first_name' => ['required', 'string'],
-            'last_name' => ['required', 'string'],
-            'phone_number' => ['required', 'string', 'min:9', 'max:15'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:8'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $data = $validator->validated();
-
-        if ($request->password !== $request->password_confirmation) {
-            return response()->json(['errors' => ['password' => ['Le mot de passe et la confirmation ne correspondent pas.']]], 422);
-        }
-
-        $student = Student::create($data);
-        $user = $student->user()->create($data);
-
-        Mail::to($user->email)->send(new WelcomeEmail($student));
-
-        return response()->json($student);
     }
 
     public function forgotPassword(Request $request)
@@ -180,7 +164,7 @@ class AuthController extends Controller
             'message' => 'Déconnexion réussie',
         ]);
     }
-    
+
     public function deleteAccount(Request $request)
     {
         $user = auth()->user();
@@ -199,14 +183,14 @@ class AuthController extends Controller
         return response()->json(['message' => 'Compte désactivé avec succès']);
     }
 
-       // une nouvelle méthode pour récupérer le profil d'un utilisateur spécifique par son ID :
-        public function getUserProfile($userId)
-        {
-            $user = User::findOrFail($userId);
-    
-            return response()->json(['data' => $user]);
-        }
-    
+    // une nouvelle méthode pour récupérer le profil d'un utilisateur spécifique par son ID :
+    public function getUserProfile($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        return response()->json(['data' => $user]);
+    }
+
 
     public function updateProfile(Request $request)
     {

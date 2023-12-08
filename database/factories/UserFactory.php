@@ -2,61 +2,32 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\Student;
-use App\Models\Chauffeur;
-use App\Models\Agent;
-
-
 
 class UserFactory extends Factory
 {
-    protected $model = User::class;
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'phone_number' => $this->faker->phoneNumber,
-            'email' => $this->faker->unique()->safeEmail,
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'gender' => $this->faker->title(),
+            'phone' => $this->faker->phoneNumber(),
+            'address' => $this->faker->address(),
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'image' => $this->faker->image(),
+            'active' => $this->faker->boolean(),
             'remember_token' => Str::random(10),
         ];
-    }
-
-    private function associateUserable(User $user, $userable): void
-    {
-        $user->userable()->associate($userable);
-        $user->save();
-    }
-
-    public function admin(): self
-    {
-        return $this->afterCreating(function (User $user) {
-            $agent = Agent::factory()->create();
-            $this->associateUserable($user, $agent);
-        });
-    }
-
-    public function driver(): self
-    {
-        return $this->afterCreating(function (User $user) {
-            $chauffeur = Chauffeur::factory()->create();
-            $this->associateUserable($user, $chauffeur);
-        });
-    }
-
-    public function student(): self
-    {
-        return $this->afterCreating(function (User $user) {
-            $student = Student::factory()->create();
-            $this->associateUserable($user, $student);
-        });
     }
 
     public function unverified(): self

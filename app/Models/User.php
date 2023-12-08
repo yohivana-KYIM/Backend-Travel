@@ -22,13 +22,15 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'phone_number',
+        'gender',
+        'phone',
+        'address',
         'image',
         'active',
-        'userable_id',
-        'userable_type',
         'email',
         'password',
+        'userable_id',
+        'userable_type',
     ];
     // // Dans User.php
     // protected $with = ['userable'];
@@ -54,18 +56,12 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the parent userable model (agent or student).
+     * Get the parent userable model (Agent or Student).
+     *
+     * @return MorphTo
      */
     public function userable(): MorphTo
     {
         return $this->morphTo();
-    }
-
-      /**
-     * @return HasMany
-     */
-    public function payements(): HasMany
-    {
-        return $this->hasMany(Payement::class) ;
     }
 }
