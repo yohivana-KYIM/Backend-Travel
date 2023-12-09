@@ -30,7 +30,9 @@ class BusController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'matricule' => 'required|string',
+            // 'matricule' => 'required|string',
+            'matricule' => 'required|string|unique:buses',
+
             'photo' => 'required|string',
             'brand' => 'required|string',
             'model' => 'required|string',

@@ -28,8 +28,13 @@ class AuthController extends Controller
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],
             'gender' => ['required', 'string'],
-            'phone' => ['required', 'string', 'min:9', 'max:15'],
+            'phone' => ['required', 'string', 'min:9', 'max:15', 'unique:users,phone'],
+
+            // 'phone' => ['required', 'string', 'min:9', 'max:15'],
             'address' => ['required', 'string'],
+            // 'image' => ['nullable', 'string'],
+            'image' => ['nullable', 'mimes:jpg,png,gif'],
+
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
@@ -41,7 +46,12 @@ class AuthController extends Controller
         if ($request->password !== $request->password_confirmation) {
             return response()->json(['errors' => ['password' => ['Le mot de passe et la confirmation ne correspondent pas.']]], 422);
         }
-
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . $file->getClientOriginalName();
+            $file->storeAs('public/images', $filename);
+            $validatedData['image'] = 'images/' . $filename;
+        }
         $data = $validator->validated();
         $student = Student::create($data);
         $data['password'] = Hash::make($data['password']);
