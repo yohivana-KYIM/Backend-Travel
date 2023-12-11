@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Models\User;
 use App\Models\Student;
 use App\Mail\WelcomeEmail;
+use App\Services\TwilioService;
+
+
 use App\Mail\ResetPasswordNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +23,15 @@ use App\Http\Controllers\Controller;
 class AuthController extends Controller
 {
     protected $providers = ["google", "facebook"];
+    protected $twilioService;
+
+
+    public function __construct(TwilioService $twilioService)
+    {
+        $this->twilioService = $twilioService;
+    }
+
+
 
     public function register(Request $request)
     {
@@ -57,11 +69,23 @@ class AuthController extends Controller
         $data['password'] = Hash::make($data['password']);
         $user = $student->user()->create($data);
 
+
+
+
+
+
+        // Envoi de l'e-mail de bienvenue
         Mail::to($user->email)->send(new WelcomeEmail($student));
+        // Envoyer un SMS de bienvenue
+        $this->sendWelcomeSMS($user->phone, $user->first_name);
 
         return response()->json($student);
     }
-
+    private function sendWelcomeSMS($phoneNumber, $firstName)
+    {
+        $message = "Bienvenue, $firstName ! Merci de vous être inscrit SUR la plateforme istama-travel.";
+        $this->twilioService->envoyerSMS($phoneNumber, $message);
+    }
     public function login(Request $request)
     {
         $validatedData = $request->validate([
