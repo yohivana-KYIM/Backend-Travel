@@ -23,35 +23,41 @@ class BusController extends Controller
 
     public function indexNotTrashed()
     {
-        $buses = Bus::whereNotNull('deleted_at')->get(); // Correction pour obtenir les bus non supprimés
+        $buses = Bus::whereNotNull('deleted_at')->get(); //  pour obtenir les bus non supprimés
         return response()->json(['message' => 'Bus non supprimés récupérés avec succès', 'data' => $buses], 200);
     }
 
+
+
+
+
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            // 'matricule' => 'required|string',
-            'matricule' => 'required|string|unique:buses',
+       $validatedData = $request->validate([
+           'matricule' => 'required|string|unique:buses',
+           'photo' => ['required', 'mimes:jpg,png,gif', 'max:2048'], // 2048 KB = 2 MB
+           'brand' => 'required|string',
+           'model' => 'required|string',
+           'seat' => 'required|string',
 
-            'photo' => 'required|string',
-            'brand' => 'required|string',
-            'model' => 'required|string',
-            'seat' => 'required|string',
-            'status' => 'in:actif,inactif',
-        ]);
+        'status' => 'required|in:actif,inactif',
+       ]);
 
-        $validatedData['status'] = $request->input('status', 'actif');
+       if ($request->has('status')) {
+           $validatedData['status'] = $request->input('status');
+       }
 
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $filename = time() . $file->getClientOriginalName();
-            $file->storeAs('public/images', $filename);
-            $validatedData['photo'] = 'images/' . $filename;
-        }
+       if ($request->hasFile('photo')) {
+           $file = $request->file('photo');
+           $filename = time() . $file->getClientOriginalName();
+           $file->storeAs('public/images', $filename);
+           $validatedData['photo'] = 'images/' . $filename;
+       }
 
-        $bus = Bus::create($validatedData);
-        return response()->json(['message' => 'Bus créé avec succès', 'data' => $bus], 201);
+       $bus = Bus::create($validatedData);
+       return response()->json(['message' => 'Bus créé avec succès', 'data' => $bus], 201);
     }
+
 
     public function show(Bus $bus)
     {
@@ -60,18 +66,35 @@ class BusController extends Controller
 
     public function update(Request $request, Bus $bus)
     {
-        $validatedData = $request->validate([
-            'matricule' => 'string',
-            'photo' => 'string',
-            'brand' => 'string',
-            'model' => 'string',
-            'seat' => 'string',
-            'status' => 'in:actif,inactif',
-        ]);
+     $validatedData = $request->validate([
+         'matricule' => 'required|string|unique:buses,matricule,' . $bus->id,
 
-        $bus->update($validatedData);
-        return response()->json(['message' => 'Bus mis à jour avec succès', 'data' => $bus], 200);
+         'photo' => ['required', 'mimes:jpg,png,gif', 'max:2048'], // 2048 KB = 2 MB
+         'brand' => 'required|string',
+         'model' => 'required|string',
+         'seat' => 'required|string',
+         'status' => 'required|in:active,inactive',
+     ]);
+
+     if ($request->has('status')) {
+         $validatedData['status'] = $request->input('status');
+     }
+
+     if ($request->hasFile('photo')) {
+         $file = $request->file('photo');
+         $filename = time() . $file->getClientOriginalName();
+         $file->storeAs('public/images', $filename);
+         $validatedData['photo'] = 'images/' . $filename;
+     }
+
+     $bus->update($validatedData);
+
+     return response()->json(['message' => 'Bus updated successfully', 'data' => $bus], 200);
     }
+
+
+
+
 
     public function destroy(Bus $bus)
     {

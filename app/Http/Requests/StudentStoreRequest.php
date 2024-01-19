@@ -25,9 +25,9 @@ class StudentStoreRequest extends FormRequest
             'matricule' => ['required', 'string', 'unique:students,matricule,except,id'],
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],
-            'gender' => ['required', 'string'],
+            'gender' => ['nullable', 'string'],
             'phone' => ['required', 'string', 'min:9', 'max:15'],
-            'address' => ['required', 'string'],
+            'address' => ['nullable', 'string'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
         ];

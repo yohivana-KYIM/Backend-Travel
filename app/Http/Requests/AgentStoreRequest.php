@@ -22,13 +22,13 @@ class AgentStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type_id' => ['required', 'integer', 'unique:types,id'],
+            'type_id' => ['required', 'integer', 'exists:types,id'],
             'driving_license' => ['required_if:type_id,chauffeur'],
-            'first_name' => ['required', 'string'],
+            'first_name' => ['nullable', 'string'],
             'last_name' => ['required', 'string'],
-            'gender' => ['required', 'string'],
+            'gender' => ['nullable', 'string'],
             'phone' => ['required', 'string', 'min:9', 'max:15'],
-            'address' => ['required', 'string'],
+            'address' => ['nullable', 'string'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
         ];

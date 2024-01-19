@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class RouteController extends Controller
+
 {
     public function index()
     {
@@ -47,6 +48,10 @@ class RouteController extends Controller
             'cost' => 'required|numeric',
         ]);
 
+        if (!$route) {
+            return response()->json(['message' => 'Route not found'], 404);
+        }
+
         $route->update([
             'name' => $request->input('name'),
             'from' => $request->input('from'),
@@ -63,6 +68,9 @@ class RouteController extends Controller
         return response()->json(['message' => 'Route supprimée avec succès'], 200);
     }
 
+
+
+
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -70,10 +78,13 @@ class RouteController extends Controller
         $routes = Route::where('name', 'like', "%$query%")
             ->orWhere('from', 'like', "%$query%")
             ->orWhere('to', 'like', "%$query%")
+            ->orWhere('cost', 'like', "%$query%")
             ->get();
 
-        return response()->json(['message' => 'Résultats de la recherche', 'data' => $routes], 200);
+        return response()->json(['message' => 'Routes trouvées avec succès', 'data' => $routes], 200);
     }
+
+
 
     public function paginate(Request $request)
     {

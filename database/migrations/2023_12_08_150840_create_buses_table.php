@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('matricule')->unique();
             $table->string('photo');
-            $table->integer('status');
+
+            $table->string('status')->default('actif');
+
+
             $table->string('brand');
             $table->string('model');
             $table->string('seat');

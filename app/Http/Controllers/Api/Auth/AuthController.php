@@ -23,13 +23,13 @@ use App\Http\Controllers\Controller;
 class AuthController extends Controller
 {
     protected $providers = ["google", "facebook"];
-    protected $twilioService;
+    // protected $twilioService;
 
 
-    public function __construct(TwilioService $twilioService)
-    {
-        $this->twilioService = $twilioService;
-    }
+    // public function __construct(TwilioService $twilioService)
+    // {
+    //     $this->twilioService = $twilioService;
+    // }
 
 
 
@@ -39,11 +39,11 @@ class AuthController extends Controller
             'matricule' => ['required', 'string', 'unique:students,matricule,except,id'],
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],
-            'gender' => ['required', 'string'],
+            'gender' => ['nullable', 'string'],
             'phone' => ['required', 'string', 'min:9', 'max:15', 'unique:users,phone'],
 
             // 'phone' => ['required', 'string', 'min:9', 'max:15'],
-            'address' => ['required', 'string'],
+            'address' => ['nullable', 'string'],
             // 'image' => ['nullable', 'string'],
             'image' => ['nullable', 'mimes:jpg,png,gif'],
 
@@ -75,17 +75,17 @@ class AuthController extends Controller
 
 
         // Envoi de l'e-mail de bienvenue
-        Mail::to($user->email)->send(new WelcomeEmail($student));
+         Mail::to($user->email)->send(new WelcomeEmail($student));
         // Envoyer un SMS de bienvenue
-        $this->sendWelcomeSMS($user->phone, $user->first_name);
+        // $this->sendWelcomeSMS($user->phone, $user->first_name);
 
         return response()->json($student);
     }
-    private function sendWelcomeSMS($phoneNumber, $firstName)
-    {
-        $message = "Bienvenue, $firstName ! Merci de vous être inscrit SUR la plateforme istama-travel.";
-        $this->twilioService->envoyerSMS($phoneNumber, $message);
-    }
+    // private function sendWelcomeSMS($phoneNumber, $firstName)
+    // {
+    //     $message = "Bienvenue, $firstName ! Merci de vous être inscrit SUR la plateforme istama-travel.";
+    //     $this->twilioService->envoyerSMS($phoneNumber, $message);
+    // }
     public function login(Request $request)
     {
         $validatedData = $request->validate([
